@@ -1,4 +1,14 @@
 import pandas as pd
+import pathlib
+import matplotlib.pyplot as plt
+import numpy as np
+import PIL
+import tensorflow as tf
+
+from tensorflow import keras
+from tensorflow.keras import layers
+from tensorflow.keras.models import Sequential
+
 
 # Load the CSV file
 df = pd.read_csv('export/_annotations.csv')
@@ -19,7 +29,7 @@ y = df['class']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 
-roses = list(data_dir.glob('export/_annotations.csv'))
+data_dir = pathlib.Path("path/to/images")
 
 batch_size = 100
 img_height = 512
