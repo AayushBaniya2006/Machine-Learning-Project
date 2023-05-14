@@ -4,13 +4,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 import PIL
 import tensorflow as tf
-
 from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
+from tensorflow.keras.preprocessing.image import load_img, img_to_array
+from tensorflow.keras.applications.resnet50 import preprocess_input
 from sklearn.model_selection import train_test_split
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
 
-
+x = tf.placeholder(tf.float32, shape=[None, 10])
 
 # Load the CSV file
 df = pd.read_csv("file_fixed.csv")
@@ -21,12 +23,9 @@ df = df.sort_values(by=['filename', 'class'])
 # Group by filename
 grouped = df.groupby('filename')
 
-# Iterate over groups and print filenames and classes
-
-
 # Split the dataset into train and test sets
 
-X = df.drop('class', axis=1)
+X = df['filename']
 y = df['class']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
@@ -35,9 +34,7 @@ data_dir = pathlib.Path('Testing')
 batch_size = 100
 img_height = 512
 img_width = 512
-print("FILE")
-print(data_dir)
-print("FILE")
+
 print()
 train_ds = tf.keras.preprocessing.image_dataset_from_directory(
     data_dir,
@@ -59,3 +56,17 @@ val_ds = tf.keras.preprocessing.image_dataset_from_directory(
 class_names = train_ds.class_names
 print(class_names)
 
+model = Sequential([
+    Conv2D(32,(3,3), activation = 'relu', input_shape=(img_height,img_width,3)),
+    MaxPooling2D((2,2)),
+    Conv2D(32,(3,3), activation = 'relu'),
+    Flatten(),
+    Dense(64,activation = 'relu'),
+    Dense(1,activation = 'sigmoid')
+])
+
+model.compile(optimizer='adam',
+              loss='binary_crossentropy',
+              metrics=['accuracy'])
+
+model.fit(train_ds,epochs=5, validation_data=val_ds)
