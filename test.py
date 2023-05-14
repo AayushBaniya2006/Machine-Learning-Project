@@ -12,7 +12,7 @@ from tensorflow.keras.applications.resnet50 import preprocess_input
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
 
-x = tf.placeholder(tf.float32, shape=[None, 10])
+x = tf.keras.Input(shape=(10,))
 
 # Load the CSV file
 df = pd.read_csv("file_fixed.csv")
@@ -23,7 +23,6 @@ df = df.sort_values(by=['filename', 'class'])
 # Group by filename
 grouped = df.groupby('filename')
 
-# Split the dataset into train and test sets
 
 X = df['filename']
 y = df['class']
@@ -57,11 +56,11 @@ class_names = train_ds.class_names
 print(class_names)
 
 model = Sequential([
-    Conv2D(32,(3,3), activation = 'relu', input_shape=(img_height,img_width,3)),
+    Conv2D(16,(3,3), activation = 'relu', input_shape=(img_height,img_width,3)),
     MaxPooling2D((2,2)),
-    Conv2D(32,(3,3), activation = 'relu'),
+    Conv2D(16,(3,3), activation = 'relu'),
     Flatten(),
-    Dense(64,activation = 'relu'),
+    Dense(32,activation = 'relu'),
     Dense(1,activation = 'sigmoid')
 ])
 
@@ -69,4 +68,17 @@ model.compile(optimizer='adam',
               loss='binary_crossentropy',
               metrics=['accuracy'])
 
-model.fit(train_ds,epochs=5, validation_data=val_ds)
+model.fit(train_ds,epochs=1, validation_data=val_ds)
+
+idx2 = random.randint(0,len(y_test))
+plt.imshow(X_test[idx2,:])
+plt.show()
+ 
+y_pred = model.predict(X_test[idx2,:].reshape(256))
+
+y_pred = y_pred > .5
+
+if(y_pred==0):
+    print("Dog")
+else:
+    print("Broken")
